@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+use App\Models\Document;
+
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -33,6 +35,14 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    /**
+     * Relationship: User has many documents
+     */
+    public function documents()
+    {
+        return $this->hasMany(Document::class);
+    }
 
     /**
      * Get the attributes that should be cast.

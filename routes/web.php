@@ -3,40 +3,56 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DocumentController;
-
-/*
-|--------------------------------------------------------------------------
-| Homepage
-|--------------------------------------------------------------------------
-*/
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DecryptController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-
 /*
-|--------------------------------------------------------------------------
-| Dashboard
-|--------------------------------------------------------------------------
+TEST ROUTE
 */
+Route::post('/tes', function () {
+    dd("POST WORKS");
+});
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::middleware(['auth', 'verified'])->group(function () {
 
-/*
-|--------------------------------------------------------------------------
-| Authenticated Routes
-|--------------------------------------------------------------------------
-*/
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
 
-Route::middleware('auth')->group(function () {
+    Route::get('/upload', [DocumentController::class, 'index'])
+        ->name('upload.form');
 
-    /*
-    | Profile Routes (Breeze bawaan)
-    */
+    Route::post('/upload', [DocumentController::class, 'store'])
+        ->name('upload.store');
+
+    Route::get('/download/{id}',
+        [DocumentController::class, 'downloadEncrypted'])
+        ->name('document.download');
+
+    Route::get('/stego/{id}',
+        [DocumentController::class, 'viewStegoImage'])
+        ->name('document.stego');
+
+    Route::get('/download-stego/{id}',
+        [DocumentController::class, 'downloadStegoImage'])
+        ->name('document.download.stego');
+
+    Route::delete('/document/{id}',
+        [DocumentController::class, 'deleteDocument'])
+        ->name('document.delete');
+
+    Route::get('/decrypt',
+        [DecryptController::class, 'index'])
+        ->name('decrypt.form');
+
+    Route::post('/decrypt',
+        [DecryptController::class, 'decrypt'])
+        ->name('decrypt.process');
+
     Route::get('/profile', [ProfileController::class, 'edit'])
         ->name('profile.edit');
 
@@ -45,17 +61,6 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
-
-
-    /*
-    | Upload Routes (Project kita)
-    */
-    Route::get('/upload', [DocumentController::class, 'index'])
-        ->name('upload.form');
-
-    Route::post('/upload', [DocumentController::class, 'store'])
-        ->name('upload.store');
 });
-
 
 require __DIR__.'/auth.php';

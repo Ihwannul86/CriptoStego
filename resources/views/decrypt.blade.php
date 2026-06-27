@@ -7,23 +7,23 @@
             <div>
 
                 <h2 class="text-4xl font-bold text-white">
-                    ⬆ Secure Upload Center
+                    🔓 Recovery Center
                 </h2>
 
                 <p class="text-gray-400 mt-2">
-                    Encrypt document and hide cryptographic key securely
+                    Recover encrypted document and rebuild hidden key
                 </p>
 
             </div>
 
             <div class="text-right">
 
-                <p class="text-cyan-300">
-                    Encryption Pipeline Active
+                <p class="text-purple-300">
+                    Recovery Pipeline Active
                 </p>
 
                 <p class="text-gray-500">
-                    AES → RSA → LSB
+                    LSB → RSA → AES
                 </p>
 
             </div>
@@ -38,98 +38,80 @@
         <div class="max-w-4xl mx-auto px-6">
 
 
-            {{-- SUCCESS REMOVED --}}
+            {{-- ERROR REMOVED --}}
             {{-- Toast handled globally in app.blade.php --}}
-
-
-            {{-- KEEP VALIDATION ERROR --}}
-            @if($errors->any())
-                <div class="bg-red-500/20 border border-red-500/20 p-4 rounded-xl mb-6 text-white">
-                    @foreach($errors->all() as $error)
-                        <p>{{ $error }}</p>
-                    @endforeach
-                </div>
-            @endif
 
 
             <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-10">
 
-                <form id="uploadForm"
+                <form id="decryptForm"
                       method="POST"
-                      action="{{ route('upload.store') }}"
+                      action="{{ route('decrypt.process') }}"
                       enctype="multipart/form-data">
 
                     @csrf
 
 
-                    {{-- DOCUMENT FILE --}}
+                    {{-- ENC FILE --}}
                     <label class="block text-white text-xl font-semibold mb-4">
 
-                        📄 Upload Document
+                        🔒 Upload Encrypted File
 
                     </label>
 
                     <label class="
                         flex flex-col justify-center items-center
                         h-48 border-2 border-dashed
-                        border-cyan-400/40 rounded-2xl
-                        cursor-pointer hover:bg-cyan-500/5 transition">
+                        border-red-400/40 rounded-2xl cursor-pointer
+                        hover:bg-red-500/5 transition">
 
-                        <span class="text-4xl mb-3">📂</span>
+                        <span class="text-4xl mb-3">📦</span>
 
-                        <span class="text-white font-medium">
-                            Click to choose document
+                        <span class="text-white">
+                            Click to choose .enc file
                         </span>
 
-                        <span class="text-gray-400 text-sm mt-2">
-                            PDF, DOCX, TXT (max 10MB)
-                        </span>
-
-                        <span id="doc-name"
-                              class="text-cyan-300 mt-3 text-sm">
+                        <span id="enc-name"
+                              class="text-red-300 mt-3 text-sm">
                         </span>
 
                         <input
-                            id="document"
+                            id="encrypted_file"
                             type="file"
-                            name="document"
+                            name="encrypted_file"
                             class="hidden">
 
                     </label>
 
 
 
-                    {{-- COVER IMAGE --}}
+                    {{-- PNG FILE --}}
                     <label class="block text-white text-xl font-semibold mt-10 mb-4">
 
-                        🖼 Upload Cover Image
+                        🖼 Upload Stego PNG
 
                     </label>
 
                     <label class="
                         flex flex-col justify-center items-center
                         h-48 border-2 border-dashed
-                        border-purple-400/40 rounded-2xl
-                        cursor-pointer hover:bg-purple-500/5 transition">
+                        border-purple-400/40 rounded-2xl cursor-pointer
+                        hover:bg-purple-500/5 transition">
 
-                        <span class="text-4xl mb-3">🖼</span>
+                        <span class="text-4xl mb-3">🧬</span>
 
-                        <span class="text-white font-medium">
-                            Click to choose image
+                        <span class="text-white">
+                            Click to choose PNG file
                         </span>
 
-                        <span class="text-gray-400 text-sm mt-2">
-                            PNG or JPG image
-                        </span>
-
-                        <span id="img-name"
+                        <span id="png-name"
                               class="text-purple-300 mt-3 text-sm">
                         </span>
 
                         <input
-                            id="cover_image"
+                            id="stego_image"
                             type="file"
-                            name="cover_image"
+                            name="stego_image"
                             class="hidden">
 
                     </label>
@@ -139,7 +121,7 @@
                     <!-- BUTTON LOADING -->
 
                     <button
-                        id="uploadButton"
+                        id="decryptButton"
                         type="submit"
 
                         class="
@@ -150,8 +132,8 @@
                         text-lg
                         font-bold
                         bg-gradient-to-r
-                        from-cyan-500
-                        to-blue-600
+                        from-pink-500
+                        to-red-500
                         hover:scale-[1.01]
                         transition
                         flex
@@ -159,14 +141,14 @@
                         items-center
                         gap-3">
 
-                        <span id="uploadText">
+                        <span id="decryptText">
 
-                            🔐 Encrypt + Hide Key
+                            ⚡ Recover & Decrypt File
 
                         </span>
 
 
-                        <svg id="uploadSpinner"
+                        <svg id="decryptSpinner"
                              class="hidden animate-spin h-5 w-5 text-white"
                              xmlns="http://www.w3.org/2000/svg"
                              fill="none"
@@ -198,33 +180,33 @@
 
 <script>
 
-document.getElementById('document').addEventListener('change', function(){
+document.getElementById('encrypted_file').addEventListener('change', function(){
 
-    document.getElementById('doc-name').textContent =
+    document.getElementById('enc-name').textContent =
         this.files[0].name;
 
 });
 
 
-document.getElementById('cover_image').addEventListener('change', function(){
+document.getElementById('stego_image').addEventListener('change', function(){
 
-    document.getElementById('img-name').textContent =
+    document.getElementById('png-name').textContent =
         this.files[0].name;
 
 });
 
 
-document.getElementById("uploadForm")
+document.getElementById("decryptForm")
 .addEventListener("submit", function(){
 
     let btn =
-        document.getElementById("uploadButton");
+        document.getElementById("decryptButton");
 
     let spinner =
-        document.getElementById("uploadSpinner");
+        document.getElementById("decryptSpinner");
 
     let text =
-        document.getElementById("uploadText");
+        document.getElementById("decryptText");
 
     btn.disabled = true;
 
@@ -233,7 +215,7 @@ document.getElementById("uploadForm")
     spinner.classList.remove("hidden");
 
     text.innerHTML =
-        "Encrypting...";
+        "Decrypting...";
 
 });
 
